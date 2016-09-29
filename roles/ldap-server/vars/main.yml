@@ -1,0 +1,7 @@
+---
+
+env:
+ RUNLEVEL: 1
+
+
+openldap_ssl_server_conf: "/C={{ openldap_ssl_server_country }}/ST={{ openldap_ssl_server_state }}/L={{ openldap_ssl_server_location }}/O={{ openldap_ssl_server_organization }}/CN={{ ansible_hostname }}/"

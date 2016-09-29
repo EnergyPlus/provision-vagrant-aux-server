@@ -1,0 +1,7 @@
+---
+
+- hosts:
+    - ldap
+  become: yes
+  roles:
+    - ldap-server

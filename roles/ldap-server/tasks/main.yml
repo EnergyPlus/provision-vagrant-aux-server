@@ -1,0 +1,5 @@
+---
+- include: install_ldap.yml
+- include: configure_ldap.yml
+- include: configure_test_user.yml
+  when: "{{ add_test_user }}"

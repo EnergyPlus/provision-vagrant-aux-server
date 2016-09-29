@@ -1,0 +1,19 @@
+# create new
+# replace to your own domain name for "dc=***,dc=***" section
+dn: uid={{ test_user_uid }},{{ openldap_server_suffix }}
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: {{ test_user_cn }}
+sn: Linux
+userPassword: {{ test_user_password.stdout }}
+loginShell: /bin/bash
+uidNumber: 1000
+gidNumber: 1000
+homeDirectory: /home/cent
+
+dn: cn={{ test_user_uid }},{{ openldap_server_suffix }}
+objectClass: posixGroup
+cn: {{ test_user_cn }}
+gidNumber: 1000
+memberUid: cent

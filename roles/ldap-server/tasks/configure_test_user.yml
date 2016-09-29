@@ -1,0 +1,18 @@
+---
+
+- name: Generate the root password for ldap
+  shell: slappasswd -s {{ openldap_server_rootpw }}
+  register: test_user_password
+
+- name: Copy the template for creating test user dn
+  template:
+    src=test_user.j2
+    dest=/tmp/test_user.ldif
+  register: result
+
+- name: add the test user
+  shell: ldapadd -x
+        -D "{{ openldap_server_rootdn }}"
+        -w {{ openldap_server_rootpw }}
+        -f {{ result.dest|default(result.path) }}
+  ignore_errors: yes

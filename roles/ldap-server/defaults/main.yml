@@ -1,0 +1,27 @@
+---
+
+#The domain prefix for ldap
+openldap_server_organization: example
+openldap_server_domain: com
+openldap_server_fqdn: "{{openldap_server_organization}}.{{openldap_server_domain}}"
+openldap_server_port: 389
+
+#This is the password for admin for openldap
+openldap_server_suffix: dc={{ openldap_server_organization }},dc={{ openldap_server_domain }}
+openldap_server_rootdn: "cn=Manager,{{ openldap_server_suffix }}"
+openldap_server_rootpw: passme
+
+#The self signed ssl parameters
+openldap_ssl_server_country: US
+openldap_ssl_server_state: oregon
+openldap_ssl_server_location: portland
+openldap_ssl_server_organization: IT
+
+openldap_server_enable_ssl: true
+
+#The ldif file
+openldap_server_ldif: domain.ldif
+
+add_test_user: false
+test_user_uid: cent
+test_user_cn: Cent
