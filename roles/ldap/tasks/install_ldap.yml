@@ -4,16 +4,8 @@
   include_vars: "{{ ansible_os_family }}.yml"
 
 - name: Install the openldap and required Packages for RedHat
-  yum: name={{ item }} state=installed
+  package: name={{ item }} state=latest
   with_items: "{{ openldap_server_pkgs }}"
-  when: ansible_os_family == 'RedHat'
-
-
-- name: Install the openldap and required Packages for Ubuntu
-  apt: name={{ item }} state=installed update_cache=yes
-  with_items: "{{ openldap_server_pkgs }}"
-  environment: env
-  when: ansible_os_family == 'Debian'
 
 - name: Delete the configuration directory
   file: path={{ openldap_server_app_path }}/slapd.d state=absent
@@ -22,7 +14,7 @@
   shell: slappasswd -s {{ openldap_server_rootpw }}
   register: root_password
 
-- name: Copy the slapd.conf configuration file 
+- name: Copy the slapd.conf configuration file
   template: src={{ openldap_ldap_conf_template }} dest={{ openldap_server_app_path }}/slapd.conf
   notify:
    - restart slapd
