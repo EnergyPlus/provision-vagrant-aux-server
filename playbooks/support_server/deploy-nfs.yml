@@ -5,6 +5,7 @@
     - nfs
   become: yes
   roles:
+    - epel-repository
     - nfs
   tags:
     - nfs
