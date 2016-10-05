@@ -73,3 +73,16 @@
     - restart slapd
 
 # [5] If Firewalld is running, allow LDAP service. LDAP uses 389/TCP.
+- name: Start firewalld service
+  service:
+    name=firewalld
+    state=restarted
+    enabled=yes
+
+- name: Enable ldap firewalld rules
+  firewalld:
+    service=ldap
+    permanent=true
+    state=enabled
+  notify:
+    - restart firewalld
