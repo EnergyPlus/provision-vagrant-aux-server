@@ -1,0 +1,13 @@
+---
+
+- name: install phpldapadmin
+  package:
+    name="{{ phpldapadmin_pkgs }}"
+    state=latest
+
+- name: httpd phpldap config file
+  template:
+    src="phpldapadmin.conf.jinja2"
+    dest="/etc/httpd/conf.d/phpldapadmin.conf"
+  notify:
+   - restart httpd
