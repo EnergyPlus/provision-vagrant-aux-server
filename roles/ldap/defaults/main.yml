@@ -1,5 +1,7 @@
 ---
 
+openldap_config_files_folder: /tmp
+
 #The domain prefix for ldap
 openldap_server_domain_name: example.com
 

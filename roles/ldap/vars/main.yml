@@ -2,3 +2,5 @@
 
 env:
  RUNLEVEL: 1
+
+openldap_chroot_template: chrootpw.ldif
