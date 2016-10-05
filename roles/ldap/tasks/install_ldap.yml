@@ -1,5 +1,7 @@
 ---
+# guide https://www.server-world.info/en/note?os=CentOS_7&p=openldap&f=1
 
+# [1] Install OpenLDAP Server.
 - name: Install the openldap and required Packages for RedHat
   package:
     name={{ item }}
@@ -19,10 +21,34 @@
     state=restarted
     enabled=yes
 
+# [2] Set OpenLDAP admin password.
 - name: Generate OpenLDAP root's password
   shell: slappasswd -s {{ openldap_server_rootpw }}
   register: root_password
 
+- name: Copy templates to configure root, manager & base domain
+  template:
+    src={{ openldap_chroot_template }}.jinja2
+    dest={{ openldap_config_files_folder }}/{{ openldap_chroot_template }}
+
+- name: Set OpenLDAP root password
+  shell: "{{ ldap_add }} -f {{ openldap_config_files_folder }}/{{ openldap_chroot_template }}"
+  ignore_errors: yes # if the root password is already set it might fail
+  notify:
+    - restart slapd
+
+# [3] Import basic Schemas.
+- name: Import basic Schemas
+  shell: "{{ ldap_add }} -f {{ openldap_server_app_path }}/schema/{{ item }}"
+  with_items:
+    - "{{ openldap_schema_cosine_template }}"
+    - "{{ openldap_schema_nis_template }}"
+    - "{{ openldap_schema_inetorgperson_template }}"
+  ignore_errors: yes # if the schema is already set it might fail
+  notify:
+    - restart slapd
+
+# [4] Set your domain name on LDAP DB.
 - name: Generate OpenLDAP manager's password
   shell: slappasswd -s {{ openldap_server_managerpw }}
   register: manager_password
@@ -32,34 +58,8 @@
     src={{ item }}.jinja2
     dest={{ openldap_config_files_folder }}/{{ item }}
   with_items:
-    - "{{ openldap_chroot_template }}"
     - "{{ openldap_manager_template }}"
     - "{{ openldap_base_domain_template }}"
-
-- name: Copy basic schemas templates
-  template:
-    src={{ item }}.jinja2
-    dest={{ openldap_schema_files_folder }}/{{ item }}
-  with_items:
-    - "{{ openldap_schema_cosine_template }}"
-    - "{{ openldap_schema_nis_template }}"
-    - "{{ openldap_schema_inetorgperson_template }}"
-
-- name: Set OpenLDAP root password
-  shell: "{{ ldap_add }} -f {{ openldap_config_files_folder }}/{{ openldap_chroot_template }}"
-  ignore_errors: yes # if the root password is already set it might fail
-  notify:
-    - restart slapd
-
-- name: Import basic Schemas
-  shell: "{{ ldap_add }} -f {{ openldap_schema_files_folder }}/{{ item }}"
-  with_items:
-    - "{{ openldap_schema_cosine_template }}"
-    - "{{ openldap_schema_nis_template }}"
-    - "{{ openldap_schema_inetorgperson_template }}"
-  ignore_errors: yes # if the schema is already set it might fail
-  notify:
-    - restart slapd
 
 - name: Modify OpenLDAP admin password
   shell: "{{ ldap_modify }} -f {{ openldap_config_files_folder }}/{{ openldap_manager_template }}"
@@ -67,24 +67,9 @@
   notify:
     - restart slapd
 
-- name: Modify OpenLDAP admin password
-  shell: "ldapadd -x -D {{ openldap_manager_dn }} -W -f {{ openldap_config_files_folder }}/{{ openldap_base_domain_template }}"
-  ignore_errors: yes # if the manager password is already set it might fail
+- name: add the base domain
+  shell: ldapadd -x -D "{{ openldap_manager_dn }}" -w {{ openldap_server_managerpw }} -f {{ openldap_config_files_folder }}/{{ openldap_base_domain_template }} && touch {{ openldap_server_app_path }}/rootdn_created creates={{ openldap_server_app_path }}/rootdn_created
   notify:
     - restart slapd
 
-- fail:
-
-
-- fail:
-# - name: Copy the slapd.conf configuration file
-#   template:
-#     src={{ openldap_ldap_conf_template }}
-#     dest={{ openldap_server_app_path }}/slapd.conf
-#   notify:
-#    - restart slapd
-#
-# - name: Copy the ldap.conf configuration file
-#   template:
-#     src=ldap.conf.j2
-#     dest={{ openldap_server_app_path }}/ldap.conf
+# [5] If Firewalld is running, allow LDAP service. LDAP uses 389/TCP.
