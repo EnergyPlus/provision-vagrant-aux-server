@@ -13,3 +13,6 @@ openldap_schema_nis_template: nis.ldif
 openldap_schema_inetorgperson_template: inetorgperson.ldif
 # basedomain
 openldap_base_domain_template: basedomain.ldif
+
+ldap_add: "ldapadd -Y EXTERNAL -H ldapi:///"
+ldap_modify: "ldapmodify -Y EXTERNAL -H ldapi:///"

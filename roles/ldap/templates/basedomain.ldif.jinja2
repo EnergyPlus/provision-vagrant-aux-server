@@ -1,20 +1,20 @@
 # replace to your own domain name for "dc=***,dc=***" section
-dn: dc=srv,dc=world
+dn: {{ ldap_suffix }}
 objectClass: top
 objectClass: dcObject
 objectclass: organization
-o: Server World
-dc: Srv
+o: {{ ldap_server_o }}
+dc: {{ ldap_dc }}
 
-dn: cn=Manager,dc=srv,dc=world
+dn: {{ openldap_manager_dn }}
 objectClass: organizationalRole
-cn: Manager
+cn: {{ openldap_manager_cn }}
 description: Directory Manager
 
-dn: ou=People,dc=srv,dc=world
+dn: ou=People,{{ ldap_suffix }}
 objectClass: organizationalUnit
 ou: People
 
-dn: ou=Group,dc=srv,dc=world
+dn: ou=Users,{{ ldap_suffix }}
 objectClass: organizationalUnit
-ou: Group
+ou: Users

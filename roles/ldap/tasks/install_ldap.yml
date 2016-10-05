@@ -27,22 +27,54 @@
   shell: slappasswd -s {{ openldap_server_managerpw }}
   register: manager_password
 
-- name: Copy templates to configure openldap
+- name: Copy templates to configure root, manager & base domain
   template:
     src={{ item }}.jinja2
     dest={{ openldap_config_files_folder }}/{{ item }}
   with_items:
     - "{{ openldap_chroot_template }}"
+    - "{{ openldap_manager_template }}"
+    - "{{ openldap_base_domain_template }}"
+
+- name: Copy basic schemas templates
+  template:
+    src={{ item }}.jinja2
+    dest={{ openldap_schema_files_folder }}/{{ item }}
+  with_items:
     - "{{ openldap_schema_cosine_template }}"
     - "{{ openldap_schema_nis_template }}"
     - "{{ openldap_schema_inetorgperson_template }}"
-    - "{{ openldap_base_domain_template }}"
 
-
-- name: Set OpenLDAP admin password
-  shell: ldapadd -Y EXTERNAL -H ldapi:/// -f {{ openldap_config_files_folder }}/{{ openldap_chroot_template }}
+- name: Set OpenLDAP root password
+  shell: "{{ ldap_add }} -f {{ openldap_config_files_folder }}/{{ openldap_chroot_template }}"
+  ignore_errors: yes # if the root password is already set it might fail
   notify:
     - restart slapd
+
+- name: Import basic Schemas
+  shell: "{{ ldap_add }} -f {{ openldap_schema_files_folder }}/{{ item }}"
+  with_items:
+    - "{{ openldap_schema_cosine_template }}"
+    - "{{ openldap_schema_nis_template }}"
+    - "{{ openldap_schema_inetorgperson_template }}"
+  ignore_errors: yes # if the schema is already set it might fail
+  notify:
+    - restart slapd
+
+- name: Modify OpenLDAP admin password
+  shell: "{{ ldap_modify }} -f {{ openldap_config_files_folder }}/{{ openldap_manager_template }}"
+  ignore_errors: yes # if the manager password is already set it might fail
+  notify:
+    - restart slapd
+
+- name: Modify OpenLDAP admin password
+  shell: "ldapadd -x -D {{ openldap_manager_dn }} -W -f {{ openldap_config_files_folder }}/{{ openldap_base_domain_template }}"
+  ignore_errors: yes # if the manager password is already set it might fail
+  notify:
+    - restart slapd
+
+- fail:
+
 
 - fail:
 # - name: Copy the slapd.conf configuration file
