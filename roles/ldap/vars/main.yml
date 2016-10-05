@@ -3,4 +3,13 @@
 env:
  RUNLEVEL: 1
 
+# Root password
 openldap_chroot_template: chrootpw.ldif
+# manager's password
+openldap_manager_template: chdomain.ldif
+# schemas
+openldap_schema_cosine_template: cosine.ldif
+openldap_schema_nis_template: nis.ldif
+openldap_schema_inetorgperson_template: inetorgperson.ldif
+# basedomain
+openldap_base_domain_template: basedomain.ldif

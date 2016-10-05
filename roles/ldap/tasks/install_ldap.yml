@@ -6,19 +6,38 @@
     state=latest
   with_items: "{{ openldap_server_pkgs }}"
 
-# - name: Delete the configuration directory
-#   file:
-#     path={{ openldap_server_app_path }}/slapd.d
-#     state=absent
+- name: Copy DB_CONFIG
+  copy:
+    src=DB_CONFIG.example
+    dest=/var/lib/ldap/DB_CONFIG
+    owner=ldap
+    group=ldap
 
-- name: Generate OpenLDAP admin password
+- name: Start sldap service
+  service:
+    name=slapd
+    state=restarted
+    enabled=yes
+
+- name: Generate OpenLDAP root's password
   shell: slappasswd -s {{ openldap_server_rootpw }}
   register: root_password
 
-- name: Copy file for OpenLDAP admin password
+- name: Generate OpenLDAP manager's password
+  shell: slappasswd -s {{ openldap_server_managerpw }}
+  register: manager_password
+
+- name: Copy templates to configure openldap
   template:
-    src={{ openldap_chroot_template }}.jinja2
-    dest={{ openldap_config_files_folder }}/{{ openldap_chroot_template }}
+    src={{ item }}.jinja2
+    dest={{ openldap_config_files_folder }}/{{ item }}
+  with_items:
+    - "{{ openldap_chroot_template }}"
+    - "{{ openldap_schema_cosine_template }}"
+    - "{{ openldap_schema_nis_template }}"
+    - "{{ openldap_schema_inetorgperson_template }}"
+    - "{{ openldap_base_domain_template }}"
+
 
 - name: Set OpenLDAP admin password
   shell: ldapadd -Y EXTERNAL -H ldapi:/// -f {{ openldap_config_files_folder }}/{{ openldap_chroot_template }}
@@ -26,15 +45,14 @@
     - restart slapd
 
 - fail:
-
-- name: Copy the slapd.conf configuration file
-  template:
-    src={{ openldap_ldap_conf_template }}
-    dest={{ openldap_server_app_path }}/slapd.conf
-  notify:
-   - restart slapd
-
-- name: Copy the ldap.conf configuration file
-  template:
-    src=ldap.conf.j2
-    dest={{ openldap_server_app_path }}/ldap.conf
+# - name: Copy the slapd.conf configuration file
+#   template:
+#     src={{ openldap_ldap_conf_template }}
+#     dest={{ openldap_server_app_path }}/slapd.conf
+#   notify:
+#    - restart slapd
+#
+# - name: Copy the ldap.conf configuration file
+#   template:
+#     src=ldap.conf.j2
+#     dest={{ openldap_server_app_path }}/ldap.conf
