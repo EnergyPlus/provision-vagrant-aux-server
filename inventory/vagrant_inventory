@@ -1,20 +1,20 @@
 # file: ./inventory/vagrant_servers
 
 # define the servers spinned up with vagrant.
-support-server    ansible_host=172.32.120.10
+test_env-aux-server ansible_host=172.32.120.10 alias_FQDN=example.com
 
 [nfs]
-support-server
+test_env-aux-server
 
 [ldap]
-support-server
+test_env-aux-server
 
-[support-server:children]
+[test_env-aux-server:children]
 nfs
 ldap
 
 [vagrant:children]
-support-server
+test_env-aux-server
 
 [vagrant:vars]
 ansible_user='vagrant'

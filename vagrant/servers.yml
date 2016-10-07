@@ -2,6 +2,6 @@
 
 ## Server Inventory to be used with local VM using Vagrant.
 
-- name: local-support-server
+- name: test_env-aux-server
   ip: 172.32.120.10
   box: centos/7
