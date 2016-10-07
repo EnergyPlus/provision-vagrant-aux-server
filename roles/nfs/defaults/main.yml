@@ -1,2 +1,4 @@
 ---
+
+# List of lines to write in `/etc/exports`
 nfs_exports: []
