@@ -3,4 +3,13 @@
 # List of lines to write in `/etc/exports`
 nfs_exports:
   - "/opt/jupyter_notebook    *(rw,sync,no_root_squash)"
-  - "/opt/gitlab              *(rw,sync,no_root_squash)"
+  # Git repository data. This will account for a large portion of your data
+  - "/opt/gitlab/git-data                *(rw,sync,no_root_squash)"
+  # SSH authorized_keys file and keys used to import repositories from some other Git services
+  - "/opt/gitlab/.ssh                    *(rw,sync,no_root_squash)"
+  # User uploaded attachments
+  - "/opt/gitlab/gitlab-rails/uploads    *(rw,sync,no_root_squash)"
+  # Build artifacts, GitLab Pages, LFS objects, temp files, etc. If you're using LFS this may also account for a large portion of your data
+  - "/opt/gitlab/gitlab-rails/shared     *(rw,sync,no_root_squash)"
+  # GitLab CI build traces
+  - "/opt/gitlab/gitlab-ci/builds        *(rw,sync,no_root_squash)"
