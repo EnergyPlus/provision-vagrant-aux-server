@@ -1,0 +1,7 @@
+---
+
+nfs_server_daemon: nfs-server
+
+nfs_server_services:
+  - rpcbind
+  - nfs-server
