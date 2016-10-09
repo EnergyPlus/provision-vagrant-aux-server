@@ -3,6 +3,10 @@
 nfs_server_pkgs:
   - nfs-utils
 
-nfs_server_daemon: nfs-server
+nfs_server_services:
+  - rpcbind
+  - nfs-server
+  - nfs-lock
+  - nfs-idmap
 
 firewall_service: firewalld

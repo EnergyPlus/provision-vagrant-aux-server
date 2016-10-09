@@ -1,7 +1,19 @@
 ---
-- name: restart nfs
+- name: restart nfs-server
   service:
-    name={{ nfs_server_daemon }}
+    name=nfs-server
+    state=restarted
+    enabled=yes
+
+- name: restart nfs-lock
+  service:
+    name=nfs-lock
+    state=restarted
+    enabled=yes
+
+- name: restart nfs-idmap
+  service:
+    name=nfs-idmap
     state=restarted
     enabled=yes
 

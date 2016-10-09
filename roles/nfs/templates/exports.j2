@@ -8,6 +8,8 @@
 # /srv/nfs4        gss/krb5i(rw,sync,fsid=0,crossmnt,no_subtree_check)
 # /srv/nfs4/homes  gss/krb5i(rw,sync,no_subtree_check)
 #
+# Generated with Ansible
+#
 {% for export in nfs_exports %}
-{{ export }}
+{{ export.server }}        {{ nfs_mount_server_ops }}
 {% endfor %}

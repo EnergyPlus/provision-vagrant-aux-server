@@ -1,15 +1,39 @@
 ---
 
-# List of lines to write in `/etc/exports`
+# # List of lines to write in `/etc/exports`
+# nfs_exports:
+#   - "/opt/jupyter_notebook    *(rw,sync,no_root_squash)"
+#   # Git repository data. This will account for a large portion of your data
+#   - "/opt/gitlab/git-data                *(rw,sync,no_root_squash)"
+#   # SSH authorized_keys file and keys used to import repositories from some other Git services
+#   - "/opt/gitlab/.ssh                    *(rw,sync,no_root_squash)"
+#   # User uploaded attachments
+#   - "/opt/gitlab/gitlab-rails/uploads    *(rw,sync,no_root_squash)"
+#   # Build artifacts, GitLab Pages, LFS objects, temp files, etc. If you're using LFS this may also account for a large portion of your data
+#   - "/opt/gitlab/gitlab-rails/shared     *(rw,sync,no_root_squash)"
+#   # GitLab CI build traces
+#   - "/opt/gitlab/gitlab-ci/builds        *(rw,sync,no_root_squash)"
+
+## NFS Configuration
+# NFS server Fully Qualified Domain Name (IP is also valid)
+nfs_server: 172.32.120.10
+
+# defaults file for nfs-client
 nfs_exports:
-  - "/opt/jupyter_notebook    *(rw,sync,no_root_squash)"
   # Git repository data. This will account for a large portion of your data
-  - "/opt/gitlab/git-data                *(rw,sync,no_root_squash)"
+  - client: /var/opt/gitlab/git-data
+    server: /opt/gitlab/git-data
   # SSH authorized_keys file and keys used to import repositories from some other Git services
-  - "/opt/gitlab/.ssh                    *(rw,sync,no_root_squash)"
+  - client: /var/opt/gitlab/.ssh
+    server: /opt/gitlab/.ssh
   # User uploaded attachments
-  - "/opt/gitlab/gitlab-rails/uploads    *(rw,sync,no_root_squash)"
+  - client: /var/opt/gitlab/gitlab-rails/uploads
+    server: /opt/gitlab/gitlab-rails/uploads
   # Build artifacts, GitLab Pages, LFS objects, temp files, etc. If you're using LFS this may also account for a large portion of your data
-  - "/opt/gitlab/gitlab-rails/shared     *(rw,sync,no_root_squash)"
-  # GitLab CI build traces
-  - "/opt/gitlab/gitlab-ci/builds        *(rw,sync,no_root_squash)"
+  - client: /var/opt/gitlab/gitlab-rails/shared
+    server: /opt/gitlab/gitlab-rails/shared
+  # Gitlab-ci build traces
+  - client: /var/opt/gitlab/gitlab-ci/builds
+    server: /opt/gitlab/gitlab-ci/builds
+
+nfs_mount_server_ops: "*(rw,sync,no_root_squash)"

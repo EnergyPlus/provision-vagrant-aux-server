@@ -1,13 +1,14 @@
 ---
 
+# NFS server Fully Qualified Domain Name (IP is also valid)
+nfs_server: 172.32.120.10
+
 # List of lines to write in `/etc/exports`
+#
+# nfs_exports: []
+#   # Git repository data. This will account for a large portion of your data
+#   - client: /var/opt/gitlab/git-data
+#     server: /opt/gitlab/git-data
 nfs_exports: []
 
-# Defined within inventory
-#
-# # define the servers spinned up with vagrant.
-# test_env-aux-server ansible_host=172.32.120.10 alias_FQDN=example.com
-#
-# [nfs]
-# test_env-aux-server
-nfs_server_FQDN: "{{ hostvars[groups['nfs'][0]].alias_FQDN }}"
+nfs_mount_server_ops: "*(rw,sync,no_root_squash)"
