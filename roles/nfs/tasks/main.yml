@@ -1,29 +1,35 @@
 ---
-# Include variables and define needed variables.
-# - name: Include OS-specific variables.
-#   include_vars: "{{ ansible_os_family }}.yml"
-#
-# - name: Include overrides specific to RHEL 7.
-#   include_vars: RedHat-7.yml
-#   when: ansible_os_family == 'RedHat' and ansible_distribution_major_version == "7"
-#
-# - name: Include overrides specific to Fedora.
-#   include_vars: Fedora.yml
-#   when: ansible_os_family == 'RedHat' and ansible_distribution == "Fedora"
-#
-# # Setup/install tasks.
-# - include: setup-RedHat.yml
-#   when: ansible_os_family == 'RedHat'
-#
-# - include: setup-Debian.yml
-#   when: ansible_os_family == 'Debian'
+# Centos 7 instructions
+#  https://www.server-world.info/en/note?os=CentOS_7&p=nfs&f=1
+
+# 0 include OS variables
+- name: Include OS-specific variables.
+  include_vars: "{{ ansible_os_family }}.yml"
+
+# 1 install necessary packages
+- name: Install nfs-server needed packages
+  package:
+    name="{{ item }}"
+    state=latest
+  with_items: "{{ nfs_server_pkgs }}"
+
+# 2 Configure files
+- name: Set nfs-server domain name
+  lineinfile:
+    dest=/etc/idmapd.conf
+    regexp='^#Domain = local.domain.edu$'
+    line='Domain = {{ nfs_server_FQDN }}'
 
 - name: Ensure directories to export exist
-  file: 'path="{{ item.strip().split()[0] }}" state=directory'
+  file:
+    path="{{ item.split(' ')[0]}}"
+    state=directory
   with_items: "{{ nfs_exports }}"
-  notify: restart nfs
+  notify:
+    - restart nfs
+    - restart rpcbind
 
-- name: Copy exports file.
+- name: Write NFS exports
   template:
     src: exports.j2
     dest: /etc/exports
@@ -31,12 +37,16 @@
     group: root
     mode: 0644
   register: nfs_exports_copy
-  notify: restart nfs
+  notify:
+    - restart nfs
+    - restart rpcbind
 
-- name: Restart NFS immediately if exports are updated.
-  service: "name={{ nfs_server_daemon }} state=restarted"
-  when: nfs_exports_copy.changed
-
-- name: Ensure nfs is running.
-  service: "name={{ nfs_server_daemon }} state=started enabled=yes"
-  when: nfs_exports|length
+- name: Allow NFS service on firewall
+  firewalld:
+    service=https
+    state=enabled
+    permanent=true
+  notify:
+    - restart firewall
+    - restart nfs
+    - restart rpcbind

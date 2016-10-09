@@ -1,2 +1,8 @@
 ---
-nfs_server_daemon: nfs
+
+nfs_server_pkgs:
+  - nfs-utils
+
+nfs_server_daemon: nfs-server
+
+firewall_service: firewalld

@@ -1,4 +1,18 @@
 ---
 - name: restart nfs
-  service: "name={{ nfs_server_daemon }} state=restarted"
-  when: nfs_exports|length
+  service:
+    name={{ nfs_server_daemon }}
+    state=restarted
+    enabled=yes
+
+- name: restart rpcbind
+  service:
+    name=rpcbind
+    state=restarted
+    enabled=yes
+
+- name: restart firewall
+  service:
+    name={{ firewall_service }}
+    state=restarted
+    enabled=yes
