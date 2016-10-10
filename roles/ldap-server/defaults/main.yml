@@ -24,4 +24,5 @@ openldap_server_ldif: domain.ldif
 
 add_test_user: false
 test_user_uid: cent
+test_user_pwd: 12345678
 test_user_cn: Cent
